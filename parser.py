@@ -4,12 +4,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
-import os
-import time
-from config import *
+
 import bs4
-import openpyxl 
 import logging
+import openpyxl 
+import os
+import re
+import time
+
+from config import *
+from utils import *
+
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level = logging.INFO,
@@ -42,22 +47,10 @@ def get_category_html(url):
     return driver.page_source
 
     
-def write_html_file(html):
-    with open('page.html', 'w') as f:
-        f.write(html)
 
 
 
 
-def get_page_data():
-    # driver.get(url)
-    # html = driver.page_source
-
-    html = open(os.getcwd() + '/page.html', 'r')
-    
-    soup = bs4.BeautifulSoup(html, features='lxml')
-    name = soup.find('div', class_='halfed').find_all('li')[3].get_text()
-    print(name)
 
 
 
