@@ -63,7 +63,7 @@ def get_page_data(url):
         'div', class_='halfed').find_all('li')[3].find('span', class_='dd').get_text()  
     obj_name = clean_text(obj_name) 
 
-    block_list = soup.find_all(class_=re.compile("dl-in-card"))[2:]
+    block_list = soup.find_all(class_=re.compile("dl-in-card-16"))
     company_name_list = soup.find_all('h2', class_=re.compile("card-woLi"))
     
     if len(company_name_list) == 0:
@@ -96,7 +96,7 @@ def get_page_data(url):
  
 def main():
     auth()        
-    for i in range(3, PAGES_PER_DAY//15 + 1):
+    for i in range(1, PAGES_PER_DAY//15 + 1):
         cat_html = get_category_html('residential', i)    
         links_list = get_cat_page_links(cat_html)
         for link in links_list:
@@ -108,8 +108,8 @@ def main():
 
 if __name__ == "__main__":
     try:
-        # main()
-        auth()
-        get_page_data('http://www.estateline.ru/project/39870/')
+        main()
+        # auth()
+        # get_page_data('http://www.estateline.ru/project/39870/')
     except Exception as e:
         send_telegram_message('Возникло исключение: ' + str(e))
