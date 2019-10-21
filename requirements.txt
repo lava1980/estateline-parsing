@@ -4,3 +4,4 @@ requests==2.22.0
 soupsieve==1.9.2
 schedule==0.6.0
 selenium==3.141.0
+openpyxl

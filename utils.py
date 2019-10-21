@@ -4,7 +4,7 @@ import os
 import re
 import requests
 
-from config import TOKEN, ADMIN_CHAT_ID
+from config import ERROR_TG_TOKEN, ADMIN_CHAT_ID
 
 
 
@@ -86,7 +86,7 @@ def get_cat_page_links(html):
 
 
 def send_telegram_message(text):
-    url = f'https://api.telegram.org/bot{TG_TOKEN}/sendMessage'
+    url = f'https://api.telegram.org/bot{ERROR_TG_TOKEN}/sendMessage'
     data = {'chat_id': ADMIN_CHAT_ID,
             'text': text
             }

@@ -24,10 +24,11 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 
 base_url = 'http://www.estateline.ru/projects/'
 
+geckodriver = '/usr/local/bin/geckodriver'
 options = webdriver.FirefoxOptions()
-options.headless == False
+options.headless == True
 
-driver = webdriver.Firefox(options=options)
+driver = webdriver.Firefox(executable_path=geckodriver, options=options)
 
     
 
@@ -69,6 +70,7 @@ def get_page_data(url):
         raise Exception('Нет доступа к странице ' + url)
 
     if len(block_list) != len(company_name_list):
+        logging.info('Длина списка блоков = ' + str(len(block_list)) + '. Длина списка названий = ' + str(len(company_name_list)))
         raise Exception('Не совпадает число названий компаний с числом блоков')
 
     print('Число названий ' + str(len(company_name_list)))
@@ -94,11 +96,7 @@ def get_page_data(url):
  
 def main():
     auth()        
-    for i in range(1, PAGES_PER_DAY//15 + 2):
-
-        if i == 2:
-            sys.exit()
-
+    for i in range(3, PAGES_PER_DAY//15 + 1):
         cat_html = get_category_html('residential', i)    
         links_list = get_cat_page_links(cat_html)
         for link in links_list:
@@ -110,6 +108,8 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        # main()
+        auth()
+        get_page_data('http://www.estateline.ru/project/39870/')
     except Exception as e:
         send_telegram_message('Возникло исключение: ' + str(e))
