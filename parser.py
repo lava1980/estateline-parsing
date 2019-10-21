@@ -96,7 +96,10 @@ def get_page_data(url):
  
 def main():
     auth()        
-    for i in range(1, PAGES_PER_DAY//15 + 1):
+    # for i in range(28, PAGES_PER_DAY//15 + 1):
+    for i in range(34, 35):
+        # if i == 28:
+        #    sys.exit()
         cat_html = get_category_html('residential', i)    
         links_list = get_cat_page_links(cat_html)
         for link in links_list:
