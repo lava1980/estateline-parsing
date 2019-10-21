@@ -32,13 +32,17 @@ driver = webdriver.Firefox(options=options)
     
 
 def auth():
+    # raise Exception('Тестовое исключение')
     logging.info('Старт авторизации')
     email, password = AUTH_DATA
-    driver.get(base_url + REGION_LIST[0])
+    driver.get(base_url)
     driver.find_element_by_xpath('//div[@id="topAuth"]/div/div/a').click()
     driver.find_element_by_id('u_email').send_keys(email)
     driver.find_element_by_id('u_password').send_keys(password)
     driver.find_element_by_xpath('//div[@class="bg"]/a/span').click()
+    
+    driver.find_element_by_xpath('//td[@id="center"]/ul/li/a/span').click()
+    driver.find_element_by_xpath(f'//ul[@class="dropbox"]/li[{REGION}]/div/a').click()
 
 
 def get_category_html(category, counter):
@@ -60,6 +64,10 @@ def get_page_data(url):
 
     block_list = soup.find_all(class_=re.compile("dl-in-card"))[2:]
     company_name_list = soup.find_all('h2', class_=re.compile("card-woLi"))
+    
+    if len(company_name_list) == 0:
+        raise Exception('Нет доступа к странице ' + url)
+
     if len(block_list) != len(company_name_list):
         raise Exception('Не совпадает число названий компаний с числом блоков')
 
@@ -83,20 +91,7 @@ def get_page_data(url):
     print(data_list)    
     return data_list
 
-    
-
-
-    
-
-
-
-
-
-
-
-
-
-
+ 
 def main():
     auth()        
     for i in range(1, PAGES_PER_DAY//15 + 2):
@@ -113,23 +108,8 @@ def main():
 
 
 
-
-
-    
-    # data = get_page_data()
-    # write_data_to_excel(data)    
-    # get_cat_pages_count(open('cat_page.html', 'r'))
-    # get_cat_page_links(open('cat_page.html', 'r'))
-    
-
-
-
-
-
-
 if __name__ == "__main__":
-    # main()
-    # data = get_page_data('http://www.estateline.ru/project/40516/')
-    # print(data)
-    auth()
-
+    try:
+        main()
+    except Exception as e:
+        send_telegram_message('Возникло исключение: ' + str(e))

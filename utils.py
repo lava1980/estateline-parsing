@@ -2,6 +2,9 @@ import bs4
 import openpyxl
 import os
 import re
+import requests
+
+from config import TOKEN, ADMIN_CHAT_ID
 
 
 
@@ -82,12 +85,15 @@ def get_cat_page_links(html):
     return link_list
 
 
-
+def send_telegram_message(text):
+    url = f'https://api.telegram.org/bot{TG_TOKEN}/sendMessage'
+    data = {'chat_id': ADMIN_CHAT_ID,
+            'text': text
+            }
+    requests.get(url, params=data)
 
 
 
 if __name__ == "__main__":
     pass
-    # get_page_data()
-    # write_data_to_excel(get_page_data())
-    
+
