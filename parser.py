@@ -26,7 +26,7 @@ base_url = 'http://www.estateline.ru/projects/'
 
 geckodriver = '/usr/local/bin/geckodriver'
 options = webdriver.FirefoxOptions()
-options.headless == True
+options.headless = True
 
 driver = webdriver.Firefox(executable_path=geckodriver, options=options)
 
@@ -96,10 +96,10 @@ def get_page_data(url):
  
 def main():
     auth()        
-    # for i in range(28, PAGES_PER_DAY//15 + 1):
-    for i in range(34, 35):
-        # if i == 28:
-        #    sys.exit()
+    for i in range(1, PAGES_PER_DAY//15 + 1):
+        logging.info('Обрабатываем страницу ' + i)
+        print('Обрабатываем страницу ' + i)
+        
         cat_html = get_category_html('residential', i)    
         links_list = get_cat_page_links(cat_html)
         for link in links_list:

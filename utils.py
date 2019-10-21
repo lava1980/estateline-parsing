@@ -4,7 +4,7 @@ import os
 import re
 import requests
 
-from config import ERROR_TG_TOKEN, ADMIN_CHAT_ID
+from config import ERROR_TG_TOKEN, ADMIN_CHAT_ID, CURRENT_SHEET
 
 
 
@@ -56,9 +56,9 @@ def write_data_to_excel(data_list):
         wb = openpyxl.load_workbook(os.path.join(os.getcwd(), 'objects.xlsx'))
     else:
         wb = openpyxl.Workbook()
-        wb.create_sheet(title = 'База объектов', index = 0)    
+        wb.create_sheet(title = CURRENT_SHEET, index = 0)    
     
-    sheet = wb['База объектов']
+    sheet = wb[CURRENT_SHEET]
     start_row = sheet.max_row
     for i in range(start_row, start_row + len(data_list)):        
         sheet.append(data_list[i - start_row])
