@@ -4,41 +4,8 @@ import os
 import re
 
 
-def get_page_data():
-    # driver.get(url)
-    # html = driver.page_source
 
-    html = open(os.getcwd() + '/page.html', 'r')    
-    soup = bs4.BeautifulSoup(html, features='lxml')
 
-    obj_name = soup.find(
-        'div', class_='halfed').find_all('li')[3].find('span', class_='dd').get_text()  
-    obj_name = clean_text(obj_name) 
-
-    block_list = soup.find_all(class_=re.compile("dl-in-card"))[2:]
-    company_name_list = soup.find_all('h2', class_=re.compile("card-woLi"))
-    if len(block_list) != len(company_name_list):
-        raise Exception('Не совпадает число названий компаний с числом блоков')
-
-    print('Число названий ' + str(len(company_name_list)))
-    data_list = []
-
-    for block in block_list:
-        index = block_list.index(block)        
-        company_name = clean_text(
-            company_name_list[index].find_all('a')[-1].get_text()
-            )
-        form = clean_text(
-            company_name_list[index].find_all('span')[-1].get_text()
-            )
-        block_data_list = get_block_data(block)
-        block_data_list.insert(0, company_name)
-        block_data_list.insert(1, form) 
-        block_data_list.insert(0, obj_name)
-        data_list.append(block_data_list)             
-        
-    print(data_list)    
-    return data_list
 
 
 def clean_text(text):
@@ -80,25 +47,47 @@ def write_html_file(html):
         f.write(html)
 
             
-def write_row_to_excel(data):    
-    wb = openpyxl.Workbook()    
-    wb.create_sheet(title = 'База объектов', index = 0)    
+def write_data_to_excel(data_list):  
+    pathh = os.path.join(os.getcwd(), 'objects.xlsx')
+    if os.path.exists(pathh):
+        wb = openpyxl.load_workbook(os.path.join(os.getcwd(), 'objects.xlsx'))
+    else:
+        wb = openpyxl.Workbook()
+        wb.create_sheet(title = 'База объектов', index = 0)    
+    
     sheet = wb['База объектов']
+    start_row = sheet.max_row
+    for i in range(start_row, start_row + len(data_list)):        
+        sheet.append(data_list[i - start_row])
     
-    town, adres, phone, email, site, inn, description = get_block_data(data)
-    
-        
-    sheet.append([town, adres, phone, email, site, inn, description])
     wb.save('objects.xlsx')
+    wb.close()
          
-            
+
+def get_cat_pages_count(html):
+    soup = bs4.BeautifulSoup(html, features='lxml')
+    pages_count = int(
+        clean_text(soup.find('div', class_='paginator').find_all('a')[-2].get_text()))
+    return pages_count
+
+
+def get_cat_page_links(html):
+    link_list = []
+    soup = bs4.BeautifulSoup(html, features='lxml')
+    raw_links_list = soup.find_all('td', class_='name')[1:]
+    for link in raw_links_list:
+        link = 'http://www.estateline.ru' + link.find('a').get('href')
+        
+        link_list.append(link)
+    return link_list
 
 
 
-# block = bs4.BeautifulSoup(open('block.html', 'r'), features='lxml')
-# get_block_data(block)
-# write_row_to_excel(block)
+
 
 
 if __name__ == "__main__":
-    get_page_data()
+    pass
+    # get_page_data()
+    # write_data_to_excel(get_page_data())
+    

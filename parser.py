@@ -10,6 +10,7 @@ import logging
 import openpyxl 
 import os
 import re
+import sys
 import time
 
 from config import *
@@ -28,6 +29,8 @@ options.headless == False
 
 driver = webdriver.Firefox(options=options)
 
+    
+
 def auth():
     logging.info('Старт авторизации')
     email, password = AUTH_DATA
@@ -37,18 +40,53 @@ def auth():
     driver.find_element_by_id('u_password').send_keys(password)
     driver.find_element_by_xpath('//div[@class="bg"]/a/span').click()
 
-def get_category(category):
-    url = base_url + category
-    driver.get(url)
-    
 
-def get_category_html(url):
-    driver.current_window_handle
+def get_category_html(category, counter):
+    url = base_url + category + '/?stPage=' + str(counter)
+    driver.get(url)
     return driver.page_source
 
+
+def get_page_data(url):
+    driver.get(url)
+    html = driver.page_source
+
+    # html = open(os.getcwd() + '/page.html', 'r')    
+    soup = bs4.BeautifulSoup(html, features='lxml')
+
+    obj_name = soup.find(
+        'div', class_='halfed').find_all('li')[3].find('span', class_='dd').get_text()  
+    obj_name = clean_text(obj_name) 
+
+    block_list = soup.find_all(class_=re.compile("dl-in-card"))[2:]
+    company_name_list = soup.find_all('h2', class_=re.compile("card-woLi"))
+    if len(block_list) != len(company_name_list):
+        raise Exception('Не совпадает число названий компаний с числом блоков')
+
+    print('Число названий ' + str(len(company_name_list)))
+    data_list = []
+
+    for block in block_list:
+        index = block_list.index(block)        
+        company_name = clean_text(
+            company_name_list[index].find_all('a')[-1].get_text()
+            )
+        form = clean_text(
+            company_name_list[index].find_all('span')[-1].get_text()
+            )
+        block_data_list = get_block_data(block)
+        block_data_list.insert(0, company_name)
+        block_data_list.insert(1, form) 
+        block_data_list.insert(0, obj_name)
+        data_list.append(block_data_list)             
+        
+    print(data_list)    
+    return data_list
+
     
 
 
+    
 
 
 
@@ -60,9 +98,28 @@ def get_category_html(url):
 
 
 def main():
-    # auth()
-    # get_category('residential')
-    get_page_data()
+    auth()        
+    for i in range(1, PAGES_PER_DAY//15 + 2):
+
+        if i == 2:
+            sys.exit()
+
+        cat_html = get_category_html('residential', i)    
+        links_list = get_cat_page_links(cat_html)
+        for link in links_list:
+            page_data = get_page_data(link)
+            write_data_to_excel(page_data)
+            
+
+
+
+
+
+    
+    # data = get_page_data()
+    # write_data_to_excel(data)    
+    # get_cat_pages_count(open('cat_page.html', 'r'))
+    # get_cat_page_links(open('cat_page.html', 'r'))
     
 
 
@@ -71,4 +128,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    # data = get_page_data('http://www.estateline.ru/project/40516/')
+    # print(data)
+    auth()
+
